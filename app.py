@@ -106,3 +106,22 @@ if st.session_state.page == "Dashboard":
 elif st.session_state.page == "Leads":
     st.markdown('## 📞 MASTER LEAD DATABASE')
     df = pd.read_csv(DATA_FILE)
+    search = st.text_input("🔍 Search Leads...")
+    if search:
+        df = df[df.astype(str).apply(lambda x: x.str.contains(search, case=False)).any(axis=1)]
+    st.dataframe(df, use_container_width=True)
+
+elif st.session_state.page == "Import":
+    st.markdown('## 📥 BULK DATA IMPORT')
+    prod = st.text_input("Product Category Name")
+    file = st.file_uploader("Upload Excel", type=["xlsx"])
+    if file and prod:
+        if st.button("SAVE DATA"):
+            new_data = pd.read_excel(file)
+            new_data["Product Category"] = prod
+            master = pd.read_csv(DATA_FILE)
+            pd.concat([master, new_data], ignore_index=True).to_csv(DATA_FILE, index=False)
+            st.success("Done!")
+            st.balloons()
+else:
+    st.write(f"### {st.session_state.page} section coming soon.")
